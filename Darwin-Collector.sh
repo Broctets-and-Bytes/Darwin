@@ -2,6 +2,9 @@
 ###These commands should be run while at the root of the target machine or mounted image. May require Sudo privilege even for mounted devices. If run as Sudo the users cleanup action may not work properly but it will only result in a few additional errors.
 ###If this script does not execute on a Mac OS, copy and paste into vi and re-save. XCode also works on Mac. The issues is with white spaces.
 ###Last Updated on 05/29/2018 for MacOS 10.13.4; Darwin Kernel Version 17.5.0. Created by Brock Bell Git @Broctets-and-Bytes
+###If this script does not execute on a Mac OS, copy and paste into vi and re-save. XCode also works on Mac. The issues is with white spaces/lr characters.
+###Originally created on 05/29/2018 for MacOS 10.13.4; Darwin Kernel Version 17.5.0. Created by Brock Bell Git @Broctets-and-Bytes
+###Last updated on 06/06/2018; added unified logs and optional sysdiagnose execution. -Brock Bell.
 ###############################################################################
 ###Script Starts###
 ###Ask the user where they want to store the collected data. If including the sleep file this should be a large storage location greater than the size of the evidence item's RAM.
@@ -10,6 +13,16 @@ read StorageLocation
 ###Ask the user for the location of the volume root to collect data from. This should equate to 'cd /' on a live system.
 echo 'Where do I find the root level of the machine to be collected from? e.g. /Volumes/OWC Aura SSD'
 read CollectionLocation
+###Ask if this is a live collection. Script MUST be run as root to collect 'sysdiagnose' information. Sysdiagnose contains incredible valuable data for live systems.
+echo 'If being run as a live collector, you should run sysdiagnose as well. Script must be running as sudo for for live collections. Run sysdiagnose y/n.'
+read sysD
+###Read the user feedback and check if they supplied 'y' or 'yes' proceed with sysdiagnose if so. Otherwise skip and continue.
+if [ "$sysD" = "y" ] || [ "$sysD" = "yes" ] ; then
+###Execute sysdiagnose command. '-f' redirects container location. 'echo |' effectively presses the enter key for you by inserting a new line into the command.
+    echo | sudo sysdiagnose -f $StorageLocation
+else
+    echo 'Not running sysdiagnose'
+fi
 ###Create a log file form stdout and stderror. Note this will also create a verbose log of the files that couldn't have the xattributes copied.
 exec &> >(tee -a "Darwin_Collection.log")
 echo 'Darwin_Collection.log will be saved to script execution directory.'
@@ -37,6 +50,7 @@ mkdir Log
 mkdir ASL
 mkdir Audit
 mkdir Misc
+mkdir Unified
 cp -Rp "$CollectionLocation/var/log/" ./Log
 cp -Rp "$CollectionLocation/var/log/asl/" ./ASL
 cp -Rp "$CollectionLocation/var/audit/" ./Audit
