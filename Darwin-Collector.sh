@@ -42,6 +42,7 @@ cp -Rp "$CollectionLocation/var/log/asl/" ./ASL
 cp -Rp "$CollectionLocation/var/audit/" ./Audit
 cp -p "$CollectionLocation/var/log/install.log" ./
 cp -Rp "$CollectionLocation/Library/Logs/" ./Misc
+cp -Rp "$CollectionLocation/private/var/db/" ./Unified
 cd ..
 ###############################################################################
 ###System Preferences
